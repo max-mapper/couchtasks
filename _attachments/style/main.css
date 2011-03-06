@@ -1,0 +1,218 @@
+/* add styles here */
+
+* {
+    margin:0px;
+    padding:0px;
+    border:0p;x
+}
+
+body {
+    overflow-y:scroll;
+}
+
+body, p {
+    font:1em Helvetica, sans-serif;
+    color:#111;
+}
+
+ul {
+    list-style-type:none;
+}
+
+fieldset {
+    padding       : 0px;
+    margin-bottom : 10px;
+    border        : 0px;
+    overflow      : auto;
+}
+
+input[type=text],input[type=password] {
+    border:1px solid #999;
+    padding:2px;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+}
+
+
+
+.button {
+    background: -moz-linear-gradient(center top , #F9F9F9, #E3E3E3) repeat scroll 0 0 transparent;
+background-image: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#F9F9F9), to(#E3E3E3));
+
+    border: 1px solid #BBBBBB;
+    font: bold 70% arial,sans-serif;
+    margin: 0 8px 0 0;
+    outline: medium none;
+    padding: 3px 8px;
+    text-align: center;
+    vertical-align: middle;
+    cursor:pointer;
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+}
+
+header {
+    display:block;
+    position:fixed;
+    top:0px;
+    width:100%;
+    text-align:center;
+    padding:10px 0px;
+    border-bottom:2px solid #000;
+    height:28px;
+}
+
+h1 {
+    display:block;
+    position:absolute;
+    left:70px;
+    right:70px;
+    text-shadow:1px 1px 1px #000;
+    font-size:26px;
+    font-weight:normal;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+}
+
+.hide {
+    display:none;
+}
+
+.content {
+    margin-top:50px;
+    width:100%;
+}
+
+#notelist li {
+    padding:10px;
+    border-bottom:1px solid #AAA;
+}
+#notelist li .checker {
+    margin:0px 10px 0px 5px;
+}
+
+footer {
+    width:100%;
+    display:block;
+    position:fixed;
+    bottom:0px;
+    height:24px;
+    padding:10px 10px 10px 20px;
+    background:#222;
+    background:-moz-linear-gradient(center top , #444, #222)
+       repeat scroll 0 0 transparent;
+    background      : -webkit-gradient(linear, left top, left bottom,
+                                       color-stop(0%,#4C5861),
+                                       color-stop(100%,#384147));
+    border-top:2px solid #000;
+}
+
+.deleted {
+    opacity:0.5;
+}
+
+#add {
+    background-image:url(../addnote.png);
+    position:absolute;
+    right:30px;
+}
+
+footer a {
+    color:white;
+    display:block;
+    float:left;
+    margin-right:20px;
+    min-width:24px;
+    height:24px;
+    font-weight:bold;
+    font-size:10px;
+    text-decoration:none;
+    text-align:center;
+    text-indent:-9999px;
+    background-position:center center;
+    background-repeat:no-repeat;
+    outline:none;
+}
+
+.home { background-image:url(../home.png); }
+.archive { background-image:url(../archive.png); }
+.cloud { background-image:url(../cloud.png); }
+
+#newtaskwrapper {
+    padding:10px;
+}
+
+#newtask {
+    width:100%;
+    display:block;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    padding:3px;
+    border:1px solid #999;
+    margin-bottom:10px;
+    -moz-box-sizing: padding-box;
+    -webkit-box-sizing: padding-box;
+}
+
+#notelist {
+    background:#EEE;
+    margin:10px;
+    -webkit-border-radius:5px;
+    -webkit-box-shadow:1px 1px 5px #000;
+    -moz-border-radius:5px;
+    -moz-box-shadow:1px 1px 5px #000;
+}
+
+
+#addserver {
+    padding:10px;
+    background:#EEE;
+    margin:10px;
+    -webkit-border-radius:5px;
+    -webkit-box-shadow:1px 1px 5px #000;
+    -moz-border-radius:5px;
+    -moz-box-shadow:1px 1px 5px #000;
+}
+
+body { background:#9aa0a5; padding-bottom:50px;}
+
+.task, .server { position:relative; }
+.panel { position:absolute; right:0px; top:10px; }
+
+#notelist li.server {
+    background:url(../server.png) 10px center no-repeat;
+    padding-left:30px;
+}
+
+.mainform fieldset {
+    border-bottom : 1px solid #AAA;
+    border-top    : 1px solid #FFF;
+    margin        : 0px;
+}
+
+.mainform label span {
+    display:block;
+    float:right;
+}
+
+.mainform label {
+    line-height : 50px;
+    height:50px;
+    float       : left;
+    width:100%;
+    position:relative;
+    display:block;
+}
+
+.mainform .last {
+    border-bottom:0px;
+}
+.mainform .first {
+    border-top:0px;
+}
+
+.light {
+    color:#999;
+    font-size:80%;
+}

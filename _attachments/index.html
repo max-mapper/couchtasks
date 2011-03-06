@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CouchTasks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="style/main.css" type="text/css">
+  </head>
+
+  <body>
+
+    <div id="content"></div>
+
+    <script type="text/html" id="newtask_tpl">
+      <li id="newtaskwrapper">
+        <input type="text" id="newtask" />
+        <input type="button" class="button" id="addnewtask" value="add task" />
+      </li>
+    </script>
+
+    <script type="text/html" id="home_tpl">
+
+      <ul id="notelist">
+        <li class="header"><h3>Tasks In Progress</h3></li>
+        {{#notes}}
+        <li data-id="{{id}}" data-rev="{{rev}}" class="task">
+          <input class="checker" type="checkbox" />{{title}}
+        </li>
+        {{/notes}}
+        {{^notes}}<li class="none">No Tasks :(</li>{{/notes}}
+      </ul>
+
+      <footer>
+        <a class="home" href="#!">todo</a>
+        <a class="archive" href="#!/complete/">completed</a>
+        <a class="cloud" href="#!/sync/">sync</a>
+        <a id="add" href="#">add task</a>
+      </footer>
+
+    </script>
+
+    <script type="text/html" id="complete_tpl">
+
+      <ul id="notelist">
+        <li class="header"><h3>Completed Tasks</h3></li>
+        {{#notes}}
+        <li data-id="{{id}}" data-rev="{{rev}}" class="task">
+          {{title}}&nbsp;
+          <div class="panel">
+            <a class="button restore">restore</a>
+            <a class="button delete">delete</a>
+          </div>
+        </li>
+        {{/notes}}
+        {{^notes}}<li class="none">No Tasks :(</li>{{/notes}}
+      </ul>
+
+      <footer>
+        <a class="home" href="#!">todo</a>
+        <a class="archive" href="#!/complete/">completed</a>
+        <a class="cloud" href="#!/sync/">sync</a>
+      </footer>
+
+    </script>
+
+    <script type="text/html" id="sync_tpl">
+
+      <ul id="notelist">
+        <li class="header"><h3>Servers</h3></li>
+        {{#servers}}
+        <li data-server="{{server}}" data-database="{{database}}"
+            data-username="{{username}}" data-password="{{password}}" class="server">
+          {{server}}
+          <div class="panel">
+            <a class="button push">push</a>
+            <a class="button pull">pull</a>
+          </div>
+        </li>
+        {{/servers}}
+        {{^servers}}<li class="none">No Servers</li>{{/servers}}
+      </ul>
+
+      <div id="addserver">
+        <h3>Add Server</h3>
+        <form action="#add_server" id="syncform" class="mainform">
+          <fieldset class="first">
+            <label>Server
+              <span><input type="text" name="server" value="{{server}}"
+                           id="server" placeholder="http://example.com" /></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <label>Database
+              <span><input type="text" name="database" value="couchnotes"
+                           id="database" placeholder="mywork" /></span>
+            </label>
+          </fieldset>
+          <fieldset>
+            <label>User Name
+              <span><input type="text" name="username" value="{{username}}"
+                           id="username" placeholder="johndoe" /></span>
+            </label>
+          </fieldset>
+          <fieldset class="last">
+            <label>Password
+              <span><input type="password" value="{{password}}"
+                           id="password" name="password" /></span>
+            </label>
+          </fieldset>
+
+          <input type="submit" value="Add Server" class="button" />
+
+        </form>
+
+      </div>
+
+      <footer>
+        <a class="home" href="#!">todo</a>
+        <a class="archive" href="#!/complete/">completed</a>
+        <a class="cloud" href="#!/sync/">sync</a>
+      </footer>
+
+    </script>
+
+  </body>
+
+  <script src="../../../_utils/script/jquery.js"></script>
+  <script src="./jquery-ui-1.8.10.custom.min.js"></script>
+  <script src="../../../_utils/script/jquery.couch.js"></script>
+  <script src="../../../_utils/script/sha1.js"></script>
+  <script src="./md5.js"></script>
+  <script src="./mustache.js"></script>
+  <script src="./utils.js"></script>
+  <script src="./tasks.js"></script>
+
+</html>
