@@ -26,6 +26,12 @@ var Tasks = (function () {
         tasks = getValues(data.rows);
         render("#home_tpl", {notes:tasks});
         $("#notelist").sortable();
+        $("#notelist" ).bind( "sortstop", function(event, ui) {
+          var index = createIndex(ui.item);
+          if (index !== false) {
+            updateIndex(ui.item.attr("data-id"), index);
+          }
+        });
       }
     });
   });
@@ -71,6 +77,34 @@ var Tasks = (function () {
       }
     });
   });
+
+  function updateIndex(id, index) {
+    var url = "/" + mainDb + "/_design/couchtasks/_update/update_index/" + id
+      + "?index=" + index;
+    $.ajax({
+      url: url,
+      type: "PUT",
+      contentType:"application/json",
+      datatype:"json"
+    });
+  };
+  
+  function createIndex(el) {
+    
+    var before = el.prev("li.task"),
+        after = el.next("li.task");
+
+    if (before.length === 0 && after.length === 0) {
+      return false;
+    } else if (before.length === 0) {
+      return parseInt(after.attr("data-index"), 10) + 1;
+    } else if (after.length === 0) {
+      return parseInt(before.attr("data-index"), 10) - 1;
+    } else {
+      return (parseInt(before.attr("data-index"), 10) +
+              parseInt(after.attr("data-index"), 10)) / 2;
+    }
+  };
 
   function getValues(src) {
     var arr = [], i;

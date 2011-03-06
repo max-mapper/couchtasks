@@ -22,7 +22,7 @@
       <ul id="notelist">
         <li class="header"><h3>Tasks In Progress</h3></li>
         {{#notes}}
-        <li data-id="{{id}}" data-rev="{{rev}}" class="task">
+        <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
           <input class="checker" type="checkbox" />{{title}}
         </li>
         {{/notes}}
@@ -43,7 +43,7 @@
       <ul id="notelist">
         <li class="header"><h3>Completed Tasks</h3></li>
         {{#notes}}
-        <li data-id="{{id}}" data-rev="{{rev}}" class="task">
+        <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
           {{title}}&nbsp;
           <div class="panel">
             <a class="button restore">restore</a>
