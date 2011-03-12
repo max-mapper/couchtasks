@@ -240,6 +240,10 @@ var Tasks = (function () {
       }
     });
 
+    $("#addserverheader").live("mousedown", function(e) {
+      $("#syncform").toggle("medium");
+    });
+
     $("#add").live("mousedown", function(e) {
       e.preventDefault();
       startNewTask();
