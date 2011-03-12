@@ -152,6 +152,13 @@ footer a.selected {
     opacity:1;
 }
 
+.task a {
+    position:absolute;
+    left:40px;
+    right:30px;
+    white-space:nowrap;
+}
+
 .home { background-image:url(../home.png); }
 .archive { background-image:url(../archive.png); }
 .cloud { background-image:url(../cloud.png); }
@@ -194,7 +201,7 @@ footer a.selected {
 
 body { background:#9aa0a5; padding-bottom:50px;}
 
-.task, .server { position:relative; }
+.task, .server { position:relative; overflow:hidden; }
 .panel { position:absolute; right:0px; top:10px; }
 
 #notelist li.server {
