@@ -8,6 +8,7 @@
 
 body {
     overflow-y:scroll;
+    overflow-x:hidden;
 }
 
 body, p {
@@ -26,13 +27,24 @@ fieldset {
     overflow      : auto;
 }
 
-input[type=text],input[type=password] {
+input[type=text],input[type=password], textarea {
     border:1px solid #999;
     padding:2px;
     -webkit-appearance:none;
     -moz-appearance:none;
 }
 
+textarea {
+   font:1em Helvetica, sans-serif;
+   font-size:90%;
+   width:100%;
+   padding:0px;
+    -moz-box-sizing: padding-box;
+    -webkit-box-sizing: padding-box;
+    border:0px;
+    background:transparent;
+    resize: none;
+}
 
 
 .button {

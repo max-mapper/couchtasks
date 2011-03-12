@@ -23,10 +23,37 @@
         <li class="header"><h3>Tasks In Progress</h3></li>
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
-          <input class="checker" type="checkbox" />{{title}}
+          <input class="checker" type="checkbox" />
+          <a href="#!/task/{{id}}/">{{title}}</a>
         </li>
         {{/notes}}
         {{^notes}}<li class="none">No Tasks :(</li>{{/notes}}
+      </ul>
+
+      <footer>
+        <a class="home" href="#!">todo</a>
+        <a class="archive" href="#!/complete/">completed</a>
+        <a class="cloud" href="#!/sync/">sync</a>
+        <a id="add" href="#">add task</a>
+      </footer>
+
+    </script>
+
+    <script type="text/html" id="task_tpl">
+
+      <ul id="notelist">
+        <li class="header"><h3>{{title}}</h3></li>
+        <li>
+          <form action="#edit">
+            <div style="margin:10px 0px;">
+              <input type="checkbox" {{completed}} name="completed" /> Completed
+            </div>
+            <textarea placeholder="enter notes" name="notes">{{notes}}</textarea>
+            <input type="hidden" name="id" value="{{_id}}" />
+            <br /><br />
+            <input class="button" type="submit" value="save" />
+          </form>
+        </li>
       </ul>
 
       <footer>
@@ -44,7 +71,7 @@
         <li class="header"><h3>Completed Tasks</h3></li>
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
-          {{title}}&nbsp;
+          <a href="#!/task/{{id}}/">{{title}}</a>
           <div class="panel">
             <a class="button restore">restore</a>
             <a class="button delete">delete</a>
@@ -67,12 +94,13 @@
       <ul id="notelist">
         <li class="header"><h3>Servers</h3></li>
         {{#servers}}
-        <li data-server="{{server}}" data-database="{{database}}"
+        <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}" data-database="{{database}}"
             data-username="{{username}}" data-password="{{password}}" class="server">
           {{server}}
           <div class="panel">
             <a class="button push">push</a>
             <a class="button pull">pull</a>
+            <a class="button deleteserver">delete</a>
           </div>
         </li>
         {{/servers}}
