@@ -212,17 +212,20 @@ var Tasks = (function () {
     $(".push").live("mousedown", function(e) {
       var li = $(e.target).parents("li");
       doReplication({
-        "target" : createUrl(li.attr("data-username"), li.attr("data-password"),
+        create_target:true,
+        filter: "couchtasks/taskfilter",
+        target : createUrl(li.attr("data-username"), li.attr("data-password"),
                              li.attr("data-server"), li.attr("data-database")),
-        "source" : mainDb
+        source : mainDb
       });
     });
 
     $(".pull").live("mousedown", function(e) {
       var li = $(e.target).parents("li");
       doReplication({
-        "target" : mainDb,
-        "source" : createUrl(li.attr("data-username"), li.attr("data-password"),
+        filter: "couchtasks/taskfilter",
+        target : mainDb,
+        source : createUrl(li.attr("data-username"), li.attr("data-password"),
                              li.attr("data-server"), li.attr("data-database"))
       });
     });
