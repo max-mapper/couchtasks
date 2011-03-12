@@ -131,6 +131,7 @@ footer {
 }
 
 footer a {
+    opacity:0.5;
     color:white;
     display:block;
     float:left;
@@ -145,6 +146,10 @@ footer a {
     background-position:center center;
     background-repeat:no-repeat;
     outline:none;
+}
+
+footer a.selected {
+    opacity:1;
 }
 
 .home { background-image:url(../home.png); }
