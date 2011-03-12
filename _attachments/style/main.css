@@ -152,7 +152,7 @@ footer a.selected {
     opacity:1;
 }
 
-.task a {
+.task > a {
     position:absolute;
     left:40px;
     right:30px;
@@ -201,7 +201,7 @@ footer a.selected {
 
 body { background:#9aa0a5; padding-bottom:50px;}
 
-.task, .server { position:relative; overflow:hidden; }
+.task, .server { position:relative; overflow:hidden; min-height:20px;}
 .panel { position:absolute; right:0px; top:10px; }
 
 #notelist li.server {

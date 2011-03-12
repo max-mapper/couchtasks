@@ -71,9 +71,9 @@
         <li class="header"><h3>Completed Tasks</h3></li>
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
+          <input class="checker" type="checkbox" />
           <a href="#!/task/{{id}}/">{{title}}</a>
           <div class="panel">
-            <a class="button restore">restore</a>
             <a class="button delete">delete</a>
           </div>
         </li>

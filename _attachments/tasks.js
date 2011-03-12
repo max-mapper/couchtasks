@@ -265,30 +265,18 @@ var Tasks = (function () {
       });
     });
 
-    $(".restore").live("mousedown", function(e) {
-      e.preventDefault();
-      var li = $(e.target).parents("li"),
-          id = li.attr("data-id"),
-          url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id
-        + "?status=active";
-      $.ajax({
-        url: url,
-        type: "PUT",
-        contentType:"application/json",
-        datatype:"json",
-        success: function() {
-          li.addClass("deleted");
-        }
-      });
-    });
-
     $(".checker").live("change", function(e) {
 
-      var status = $(this).is(":checked") ? "complete" : "active",
+      var status = {
+        "#home_tpl": {"checked": "complete", "unchecked": "active"},
+        "#complete_tpl": {"checked": "active", "unchecked": "complete"}
+      };
+
+      var cur_status = status[current_tpl][$(this).is(":checked") ? "checked" : "unchecked"],
           li = $(e.target).parents("li"),
           id = li.attr("data-id"),
           url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id
-        + "?status=" + status;
+        + "?status=" + cur_status;
 
       $.ajax({
         url: url,
@@ -296,7 +284,8 @@ var Tasks = (function () {
         contentType:"application/json",
         datatype:"json",
         success: function() {
-          if (status === "complete") {
+          if (cur_status === "complete" && current_tpl === "#home_tpl" ||
+              cur_status === "active" && current_tpl === "#complete_tpl") {
             li.addClass("deleted");
           } else {
             li.removeClass("deleted");
