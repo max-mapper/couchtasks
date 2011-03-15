@@ -1,163 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+
     <title>CouchTasks</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="style/main.css" type="text/css">
+    <link rel="stylesheet" href="style/main.css">
+
   </head>
 
   <body>
 
-    <div id="content"></div>
+    <div id="wrapper">
+      <div class="pane" id="pane1"></div>
+      <div class="pane" id="pane2"></div>
+    </div>
 
-    <script type="text/html" id="newtask_tpl">
-      <li id="newtaskwrapper">
-        <input type="text" id="newtask" />
-        <input type="button" class="button" id="addnewtask" value="add task" />
-      </li>
+    <footer>
+      <a href="#!" class="home"><div></div></a>
+      <a href="#!/complete/" class="archive"><div></div></a>
+      <a href="#!/sync/" class="cloud"><div></div></a>
+      <a href="#!/add_task/" id="add"><div></div></a>
+      <a href="#!/add_server/" id="add_serverbtn"><div></div></a>
+    </footer>
+
+    <script type="text/html" id="addtask_tpl">
+      <form action="#add_task">
+        <fieldset>
+          <input type="text" name="title" placeholder="Title" required />
+          <textarea placeholder="Enter Notes" name="notes"></textarea>
+        </fieldset>
+        <input type="submit" value="Create Task" />
+      </form>
     </script>
 
     <script type="text/html" id="home_tpl">
-
       <ul id="notelist">
-        <li class="header"><h3>Tasks In Progress</h3></li>
+        <li class="header"><h3>Tasks</h3></li>
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
           <input class="checker" type="checkbox" />
-          <a href="#!/task/{{id}}/">{{title}}</a>
+          <span class="title">{{title}}</span>
+          <span class="arrow right">&rsaquo;</span>
         </li>
         {{/notes}}
-        {{^notes}}<li class="none">No Tasks :(</li>{{/notes}}
+        {{^notes}}<li class="none">No Tasks</li>{{/notes}}
       </ul>
+    </script>
 
-      <footer>
-        <a class="home selected" href="#!">todo</a>
-        <a class="archive" href="#!/complete/">completed</a>
-        <a class="cloud" href="#!/sync/">sync</a>
-        <a id="add" href="#">add task</a>
-      </footer>
+    <script type="text/html" id="complete_tpl">
+      <ul id="notelist">
+        <li class="header"><h3>Completed</h3></li>
+        {{#notes}}
+        <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
+          <input class="checker" type="checkbox" />
+          <span class="title">{{title}}</span>
+          <a class="delete right">delete</a>
+        </li>
+        {{/notes}}
+        {{^notes}}<li class="none">No Completed Tasks</li>{{/notes}}
+      </ul>
+    </script>
+
+    <script type="text/html" id="addserver_tpl">
+      <form action="#add_server" id="syncform">
+        <fieldset>
+          <input type="text" name="server" placeholder="Host (http://example.com)"
+                 required />
+          <input type="text" name="database" value="couchtasks"
+                 placeholder="mywork" />
+          <input type="text" name="username" placeholder="Username (johndoe)" />
+          <input type="password" name="password" placeholder="Password" />
+        </fieldset>
+        <input type="submit" value="Add Server" />
+      </form>
+
+      <ul id="notelist">
+        {{#servers}}
+        <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}"
+            data-database="{{database}}"
+            data-username="{{username}}" data-password="{{password}}" class="server">
+          {{server}}
+          <a class="deleteserver right">delete</a>
+        </li>
+        {{/servers}}
+      </ul>
 
     </script>
 
     <script type="text/html" id="task_tpl">
-
-      <ul id="notelist">
-        <li class="header"><h3>{{title}}</h3></li>
-        <li>
-          <form action="#edit">
-            <div style="margin:10px 0px;">
-              <input type="checkbox" {{completed}} name="completed" /> Completed
-            </div>
-            <textarea placeholder="enter notes" name="notes">{{notes}}</textarea>
-            <input type="hidden" name="id" value="{{_id}}" />
-            <br /><br />
-            <input class="button" type="submit" value="save" />
-          </form>
-        </li>
-      </ul>
-
-      <footer>
-        <a class="home" href="#!">todo</a>
-        <a class="archive" href="#!/complete/">completed</a>
-        <a class="cloud" href="#!/sync/">sync</a>
-        <a id="add" href="#">add task</a>
-      </footer>
-
-    </script>
-
-    <script type="text/html" id="complete_tpl">
-
-      <ul id="notelist">
-        <li class="header"><h3>Completed Tasks</h3></li>
-        {{#notes}}
-        <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
-          <input class="checker" type="checkbox" />
-          <a href="#!/task/{{id}}/">{{title}}</a>
-          <div class="panel">
-            <a class="button delete">delete</a>
+      <h3>{{title}}</h3>
+      <form action="#edit">
+        <fieldset>
+          <textarea placeholder="Enter Notes" name="notes">{{notes}}</textarea>
+          <div class="input">
+            <input type="checkbox" {{completed}} name="completed" />
+            <label>Completed</label>
           </div>
-        </li>
-        {{/notes}}
-        {{^notes}}<li class="none">No Tasks :(</li>{{/notes}}
-      </ul>
-
-      <footer>
-        <a class="home" href="#!">todo</a>
-        <a class="archive selected" href="#!/complete/">completed</a>
-        <a class="cloud" href="#!/sync/">sync</a>
-      </footer>
-
+        </fieldset>
+        <input type="hidden" name="id" value="{{_id}}" />
+        <input class="button" type="submit" value="Save Task" id="savetask" />
+      </form>
     </script>
 
     <script type="text/html" id="sync_tpl">
-
       <ul id="notelist">
         <li class="header"><h3>Servers</h3></li>
         {{#servers}}
-        <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}" data-database="{{database}}"
-            data-username="{{username}}" data-password="{{password}}" class="server">
+        <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}"
+            data-database="{{database}}" data-username="{{username}}"
+            data-password="{{password}}" class="server">
           {{server}}
-          <div class="panel">
-            <a class="button push">push</a>
-            <a class="button pull">pull</a>
-            <a class="button deleteserver">delete</a>
-          </div>
+          <div id="feedback"></div>
+          <a class="sync right"><div  />sync</a>
         </li>
         {{/servers}}
         {{^servers}}<li class="none">No Servers</li>{{/servers}}
       </ul>
-
-      <div id="addserver">
-        <h3 id="addserverheader">Add Server</h3>
-        <form action="#add_server" id="syncform" class="mainform" style="display:none">
-          <fieldset class="first">
-            <label>Server
-              <span><input type="text" name="server" value="{{server}}"
-                           id="server" placeholder="http://example.com" /></span>
-            </label>
-          </fieldset>
-          <fieldset>
-            <label>Database
-              <span><input type="text" name="database" value="couchnotes"
-                           id="database" placeholder="mywork" /></span>
-            </label>
-          </fieldset>
-          <fieldset>
-            <label>User Name
-              <span><input type="text" name="username" value="{{username}}"
-                           id="username" placeholder="johndoe" /></span>
-            </label>
-          </fieldset>
-          <fieldset class="last">
-            <label>Password
-              <span><input type="password" value="{{password}}"
-                           id="password" name="password" /></span>
-            </label>
-          </fieldset>
-
-          <input type="submit" value="Add Server" class="button" />
-
-        </form>
-
-      </div>
-
-      <footer>
-        <a class="home" href="#!">todo</a>
-        <a class="archive" href="#!/complete/">completed</a>
-        <a class="cloud selected" href="#!/sync/">sync</a>
-      </footer>
-
     </script>
 
   </body>
 
   <script src="../../../_utils/script/jquery.js"></script>
+
   <script src="./jquery-ui-1.8.10.custom.min.js"></script>
   <script src="./jquery.couch.js"></script>
-  <script src="../../../_utils/script/sha1.js"></script>
-  <script src="./md5.js"></script>
+
   <script src="./mustache.js"></script>
   <script src="./utils.js"></script>
+  <script src="./iscroll-lite.js"></script>
   <script src="./tasks.js"></script>
 
 </html>

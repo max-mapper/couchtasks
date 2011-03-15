@@ -1,7 +1,7 @@
 /*jshint white:true */
 
 window.log = function(){
-  log.history = log.history || [];   // store logs to an array for reference
+  log.history = log.history || [];
   log.history.push(arguments);
   if(this.console){
     console.log( Array.prototype.slice.call(arguments) );
@@ -15,29 +15,77 @@ $.ajaxSetup({
 var Tasks = (function () {
 
   var mainDb  = document.location.pathname.split("/")[1],
+  isMobile = Utils.isMobile(),
   editing = false,
   router  = new Router(),
   current_tpl = null,
+  slidePane = null,
   docs    = {},
   tasks   = [],
   servers = [],
+  zIndex  = 0,
+  currentPane = "pane1",
   $db     = $.couch.db(mainDb);
 
-  router.get(/^(!)?$/, function () {
-    $db.view('couchtasks/tasks', {
-      descending: true,
-      success : function (data) {
-        tasks = getValues(data.rows);
-        render("#home_tpl", {notes:tasks});
-        $("#notelist").sortable();
-        $("#notelist" ).bind( "sortstop", function(event, ui) {
+  var templates = {
+    addserver_tpl : {
+      transition: "slideUp",
+      events: { '.deleteserver' : {'event': 'click', 'callback' : deleteServer}}
+    },
+    addtask_tpl : {transition: "slideUp"},
+    task_tpl : { transition: "slideHorizontal" },
+    sync_tpl : {
+      transition: "slideHorizontal",
+      events : {
+        '.sync' : {'event': 'click', 'callback' : doSync}
+      }
+    },
+    home_tpl : {
+      transition : "slideHorizontal",
+      events : {
+        '.checker' : {'event': 'change', 'callback' : markDone},
+        '.task' : {'event': 'click', 'callback' : viewTask},
+        '.delete' : {'event': 'click', 'callback' : deleteTask}
+      },
+      init : function(dom) {
+        $("#notelist", dom).sortable({
+          axis:'y',
+          distance:30
+        });
+
+        $("#notelist", dom).bind( "sortstop", function(event, ui) {
           var index = createIndex(ui.item);
           if (index !== false) {
             updateIndex(ui.item.attr("data-id"), index);
           }
         });
       }
+    }
+  };
+
+  templates.complete_tpl = templates.home_tpl;
+
+  router.get(/^(!)?$/, function () {
+    $db.view('couchtasks/tasks', {
+      descending: true,
+      success : function (data) {
+        tasks = getValues(data.rows);
+        render("home_tpl", "#home_content", {notes:tasks});
+      }
     });
+  });
+
+  router.get('!/add_server/', function () {
+    $db.view('couchtasks/servers', {
+      success : function (data) {
+        servers = getValues(data.rows);
+        render("addserver_tpl", "#add_server", {servers:servers});
+      }
+    });
+  });
+
+  router.get('!/add_task/', function () {
+    render("addtask_tpl", "#add_content");
   });
 
   router.get('!/complete/', function (id) {
@@ -45,8 +93,7 @@ var Tasks = (function () {
       descending: true,
       success : function (data) {
         tasks = getValues(data.rows);
-        render("#complete_tpl", {notes:tasks});
-        $("#notelist").sortable();
+        render("complete_tpl", "#complete_content", {notes:tasks});
       }
     });
   });
@@ -55,7 +102,7 @@ var Tasks = (function () {
     $db.view('couchtasks/servers', {
       success : function (data) {
         servers = getValues(data.rows);
-        render("#sync_tpl", {servers:servers});
+        render("sync_tpl", "#sync_content", {servers:servers});
       }
     });
   });
@@ -65,7 +112,7 @@ var Tasks = (function () {
       success: function(doc) {
         docs[doc._id] = doc;
         doc.completed = doc.status === "complete" ? "checked='checked'" : "";
-        render("#task_tpl", doc);
+        render("task_tpl", null, doc);
       }
     });
   });
@@ -75,21 +122,47 @@ var Tasks = (function () {
     doc.notes = details.notes;
     doc.status = details.completed && details.completed === "on"
       ? "complete" : "active";
-    $db.saveDoc(doc, {
-     "success": function() {
-       router.refresh();
-     }
-    });
+    $db.saveDoc(doc, {"success": router.back});
   });
 
   router.post('add_server', function (e, details) {
     details.type = "server";
-    $db.saveDoc(details, {
-      "success": function() {
-        router.refresh();
-      }
-    });
+    $db.saveDoc(details, {"success": router.back});
   });
+
+  router.post('add_task', function (e, details) {
+    newTask(details.title, details.notes, router.back);
+  });
+
+  function markDone(e) {
+
+    var status = {
+      "home_tpl": {"checked": "complete", "unchecked": "active"},
+      "complete_tpl": {"checked": "active", "unchecked": "complete"}
+    };
+
+    var cur_status = status[current_tpl][$(this).is(":checked")
+                                         ? "checked" : "unchecked"],
+    li = $(e.target).parents("li"),
+    id = li.attr("data-id"),
+    url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id
+      + "?status=" + cur_status;
+
+    $.ajax({
+      url: url,
+      type: "PUT",
+        contentType:"application/json",
+        datatype:"json",
+        success: function() {
+          if (cur_status === "complete" && current_tpl === "home_tpl" ||
+              cur_status === "active" && current_tpl === "complete_tpl") {
+            li.addClass("deleted");
+          } else {
+            li.removeClass("deleted");
+          }
+        }
+    });
+  };
 
   function updateIndex(id, index) {
     var url = "/" + mainDb + "/_design/couchtasks/_update/update_index/" + id +
@@ -127,20 +200,60 @@ var Tasks = (function () {
     return arr;
   }
 
-  function render(tpl, data) {
-    current_tpl = tpl;
-    data = data || {};
-    $('#content').html(Mustache.to_html($(tpl).html(), data));
-  }
+  function render(tpl, dom, data) {
 
-  function jsonStorage(key, val) {
-    if (val) {
-      localStorage[key] = JSON.stringify(val);
-      return true;
-    } else {
-      return localStorage && localStorage[key] &&
-        JSON.parse(localStorage[key]) || false;
+    oldPane = (currentPane === "#pane1") ? "#pane1" : "#pane2";
+    currentPane = (currentPane === "#pane1") ? "#pane2" : "#pane1";
+    $(oldPane).css({'z-index':1});
+    $(currentPane).empty().css({'z-index':2});
+
+    data = data || {};
+    $("body").removeClass(current_tpl).addClass(tpl);
+
+    var rendered = Mustache.to_html($("#" + tpl).html(), data),
+    $pane = $("<div class='content'>" + rendered + "</div>");
+    createCheckBox($pane);
+
+    // Bind this templates events
+    var events = templates[tpl] && templates[tpl].events;
+    if (events) {
+      for (var key in events) {
+        $(key, $pane).bind(events[key].event + ".custom", events[key].callback);
+      }
     }
+
+    if (templates[tpl] && templates[tpl].init) {
+      templates[tpl].init($pane);
+    }
+
+    var transition = templates[tpl] && templates[tpl].transition;
+    if (transition === 'slideUp') {
+      slidePane = $pane.css({position:"absolute", top:999, 'z-index': 3})
+        .appendTo("body").animate({top:0});
+    } else if (slidePane) {
+      $pane.appendTo($(currentPane));
+      $("#wrapper").css({left: -$(currentPane).position().left});
+      slidePane.animate({top:999}, {complete: function () {
+        slidePane.remove();
+        slidePane = null;
+      }});
+    } else {
+      if (current_tpl) {
+        if (tpl === "task_tpl" ||
+            (tpl === "complete_tpl" && current_tpl === "home_tpl") ||
+            (tpl === "sync_tpl" && current_tpl === "home_tpl") ||
+            (tpl === "sync_tpl" && current_tpl === "complete_tpl")) {
+          $(currentPane).css({left:$(oldPane).position().left + $(oldPane).width()});
+        } else {
+          $(currentPane).css({left:$(oldPane).position().left - $(oldPane).width()});
+        }
+      }
+      $pane.appendTo($(currentPane));
+      $("#wrapper").animate({left: -$(currentPane).position().left});
+    }
+
+
+    current_tpl = tpl;
   }
 
   function findTask(id) {
@@ -152,7 +265,7 @@ var Tasks = (function () {
     return false;
   }
 
-  function newTask(title) {
+  function newTask(title, notes, callback) {
     var index = findTask($("#notelist li.task:eq(1)").attr("data-id"));
     index = index && index.index + 1 || 1;
     $db.saveDoc({
@@ -161,36 +274,23 @@ var Tasks = (function () {
       "status":"active",
       "title":title,
       "tags":[],
-      "notes":""
+      "notes":notes
     }, {
       "success": function (data) {
-        router.refresh();
+        callback();
       }
     });
   }
 
-  function startNewTask() {
-    if (!editing) {
-      editing = true;
-      $($("#newtask_tpl").html()).insertAfter($("#notelist .header"));
-      $("#newtask")[0].focus();
-    } else {
-      editing = false;
-      $("#newtaskwrapper").remove();
-    }
-  };
-
-  function doReplication(obj) {
-    $("#feedback").text("Starting Replication");
+  function doReplication(obj, callbacks) {
     $.ajax({
-      "url": "/_replicate",
-      "type": 'POST',
-      "data": JSON.stringify(obj),
+      url: "/_replicate",
+      type: 'POST',
+      data: JSON.stringify(obj),
       contentType : "application/json",
       dataType : "json",
-      "success": function () {
-        $("#feedback").text("Replication Complete");
-     }
+      success: callbacks.success,
+      error: callbacks.error
     });
   };
 
@@ -203,120 +303,87 @@ var Tasks = (function () {
     }
   };
 
-  function bindDomEvents() {
+  function viewTask(e) {
+    if (!$(e.target).is("li.task") && e.target.nodeName !== 'SPAN') {
+      return;
+    }
+    document.location.href = "#!/task/" + $(this).attr("data-id") + "/";
+  }
 
-    $("#addnewtask").live("mousedown", function() {
-      newTask($("#newtask").val());
-    });
+  function doSync(e) {
 
-    $(".push").live("mousedown", function(e) {
-      var li = $(e.target).parents("li");
-      doReplication({
-        create_target:true,
-        filter: "couchtasks/taskfilter",
-        target : createUrl(li.attr("data-username"), li.attr("data-password"),
-                             li.attr("data-server"), li.attr("data-database")),
-        source : mainDb
-      });
-    });
+    var li = $(e.target).parents("li").addClass("syncing"),
+    server = li.attr("data-server"),
+    database = li.attr("data-database"),
+    user = li.attr("data-username"),
+    pass = li.attr("data-password");
 
-    $(".pull").live("mousedown", function(e) {
-      var li = $(e.target).parents("li");
-      doReplication({
-        filter: "couchtasks/taskfilter",
-        target : mainDb,
-        source : createUrl(li.attr("data-username"), li.attr("data-password"),
-                             li.attr("data-server"), li.attr("data-database"))
-      });
-    });
 
-    $("#newtask").live("keydown", function(e) {
-      if (e.which === 13) {
-        if ($(this).val() != "") {
-          newTask($(this).val());
-        } else {
-          $("#newtaskwrapper").remove();
-        }
-      }
-    });
+    var error = function() {
+      $("#feedback").addClass("error").text("Sync Failed!").show();
+      li.removeClass("syncing");
+    };
 
-    $("#addserverheader").live("mousedown", function(e) {
-      $("#syncform").toggle("medium");
-    });
-
-    $("#add").live("mousedown", function(e) {
-      e.preventDefault();
-      startNewTask();
-    });
-
-    $(".deleteserver").live("mousedown", function(e) {
-      e.preventDefault();
-      var li = $(e.target).parents("li");
-      $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
-        success: function() {
-          router.refresh();
-        }
-      });
-    });
-
-    $(".delete").live("mousedown", function(e) {
-      e.preventDefault();
-      var li = $(e.target).parents("li");
-      $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
-        success: function() {
-          li.slideUp("medium", function () { li.remove(); });
-        }
-      });
-    });
-
-    $(".checker").live("change", function(e) {
-
-      var status = {
-        "#home_tpl": {"checked": "complete", "unchecked": "active"},
-        "#complete_tpl": {"checked": "active", "unchecked": "complete"}
-      };
-
-      var cur_status = status[current_tpl][$(this).is(":checked") ? "checked" : "unchecked"],
-          li = $(e.target).parents("li"),
-          id = li.attr("data-id"),
-          url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id
-        + "?status=" + cur_status;
-
-      $.ajax({
-        url: url,
-        type: "PUT",
-        contentType:"application/json",
-        datatype:"json",
-        success: function() {
-          if (cur_status === "complete" && current_tpl === "#home_tpl" ||
-              cur_status === "active" && current_tpl === "#complete_tpl") {
-            li.addClass("deleted");
-          } else {
-            li.removeClass("deleted");
-          }
-        }
-      });
-    });
-
-    $(document).bind("keydown", function(e) {
-
-      if (!(current_tpl === "#home_tpl" || current_tpl === "#complete_tpl")) {
-        return;
-      }
-
-      if (e.which == 13 && !editing) {
-        if (!editing) {
-          startNewTask();
-        }
-      } else if (e.which == 13 && editing) {
-        $("#newtask").blur();
-        editing = false;
-      }
-    });
-
+    doReplication({
+      create_target:true,
+      filter: "couchtasks/taskfilter",
+      target : createUrl(user, pass, server, database),
+      source : mainDb
+    }, {
+      "success" : function() {
+        doReplication({
+          filter: "couchtasks/taskfilter",
+          target : mainDb,
+          source : createUrl(user, pass, server, database)
+        }, { "success" : function () {
+          $("#feedback").addClass("success").text("Sync Complete!").show();
+          li.removeClass("syncing");
+        }, error: error})
+      }, error: error});
   };
 
-  bindDomEvents();
+  function deleteServer(e) {
+    e.preventDefault();
+    var li = $(e.target).parents("li");
+    $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
+      success: function() {
+        li.remove()
+      }
+    });
+  };
+
+  function deleteTask(e) {
+    e.preventDefault();
+    $(e.target).css({opacity:1});
+    var li = $(e.target).parents("li");
+    $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
+      success: function() {
+        li.fadeOut("medium", function () {
+          li.remove();
+        });
+      }
+    });
+  };
+
+  function createCheckBox(parent) {
+    $("input[type=checkbox]", parent).each(function() {
+      var $input = $(this).wrap("<div class='checkbox'></div>");
+      var $wrapper = $(this).parent(".checkbox").append("<div />");
+      if ($input.is(":checked")) {
+        $wrapper.addClass("checked");
+      }
+      $wrapper.bind("click", function(){
+        $wrapper.toggleClass("checked");
+        $input.attr("checked", !$input.is(":checked")).change();
+      });
+    });
+  };
+
+  $(window).bind("resize", function () {
+    $(".pane").width($("body").width());
+  });
+  $(window).resize();
+
   router.init();
 
 })();

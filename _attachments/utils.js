@@ -3,23 +3,33 @@
 // great for my cpu (it polls by default even when the hashchange
 // is supported)
 var Router = (function() {
-  
+
   var PATH_REPLACER = "([^\/]+)",
       PATH_MATCHER  = /:([\w\d]+)/g,
       preRouterFun  = null,
       fun404        = null,
+      history       = [],
       routes        = {GET: [], POST: []};
-    
+
   // Needs namespaced and decoupled and stuff
   function init() {
     $(window).bind("hashchange", urlChanged).trigger("hashchange");
     $(document).bind("submit", formSubmitted);
   };
-  
+
+  function back() {
+    history.pop(); // current url
+    if (history.length > 0) {
+      document.location.href = "#" + history.pop();
+    } else {
+      document.location.href = "#";
+    }
+  };
+
   function get(path, cb) {
     route("GET", path, cb);
   };
-  
+
   function post(path, cb) {
     route("POST", path, cb);
   };
@@ -46,26 +56,27 @@ var Router = (function() {
       ? new RegExp("^"+path.replace(PATH_MATCHER, PATH_REPLACER)+"$")
       : path;
   };
-  
+
   function route(verb, path, cb) {
     routes[verb].push({
       path     : toRegex(path),
       callback : cb
     });
   };
-    
+
   function urlChanged(maintainScroll) {
+    history.push(window.location.hash.slice(1));
     trigger("GET", window.location.hash.slice(1));
-    if (maintainScroll !== true) { 
+    if (maintainScroll !== true) {
       window.scrollTo(0,0);
     }
   };
-  
+
   function formSubmitted(e) {
 
     e.preventDefault();
     var action = e.target.getAttribute("action");
-    
+
     if (action[0] === "#") {
       trigger("POST", action.slice(1), e, serialize(e.target));
     }
@@ -95,7 +106,7 @@ var Router = (function() {
   function matchesCurrent(needle) {
     return window.location.hash.slice(1).match(toRegex(needle));
   };
-    
+
   function matchPath(verb, path) {
     var i, tmp, arr = routes[verb];
     for (i = 0; i < arr.length; i += 1) {
@@ -106,7 +117,7 @@ var Router = (function() {
     }
     return false;
   };
-  
+
   function serialize(obj) {
     var o = {};
     var a = $(obj).serializeArray();
@@ -122,9 +133,10 @@ var Router = (function() {
     });
     return o;
   };
-    
+
   return {
     go      : go,
+    back    : back,
     get     : get,
     post    : post,
     init    : init,
@@ -133,19 +145,27 @@ var Router = (function() {
     refresh : refresh,
     error404 : error404
   };
-  
+
 });
+
+var Utils = {};
+
+Utils.isMobile = function() {
+  return navigator.userAgent.toLowerCase()
+    .match(/(android|iphone|ipod|ipad)/) !== null;
+};
+
 
 function linkUp(body, person_prefix, tag_prefix) {
 
   //body = Mustache.escape(body);
   person_prefix = person_prefix || "#!/mentions/";
   tag_prefix = tag_prefix || "#!/tags/";
-  
+
   var tmp = body.replace(/((ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?)/gi,function(a) {
     return '<a target="_blank" href="'+a+'">'+a+'</a>';
   });
-  
+
   function transformText(str) {
     return str.replace(/\@([\w\-]+)/g, function(user,name) {
       return '<a href="'+person_prefix+encodeURIComponent(name)+'">'+user+'</a>';
@@ -153,24 +173,24 @@ function linkUp(body, person_prefix, tag_prefix) {
       return '<a href="'+tag_prefix+encodeURIComponent(tag)+'">'+word+'</a>';
     });
   };
-  
+
   function replaceTags(dom) {
     var i, tmp;
     for (i = 0; i < dom.childNodes.length; i++) {
       tmp = (dom.childNodes[i].nodeType === 3 &&
-             $(dom.childNodes[i]).parents("a").length === 0) 
+             $(dom.childNodes[i]).parents("a").length === 0)
         ? $("<span>"+transformText(dom.childNodes[i].textContent)+"</span>")[0]
         : replaceTags(dom.childNodes[i]);
-      
-      dom.replaceChild(tmp, dom.childNodes[i]); 
+
+      dom.replaceChild(tmp, dom.childNodes[i]);
     }
     return dom;
   };
-  
+
   var div = document.createElement("div");
   div.innerHTML = tmp;
   return replaceTags(div).innerHTML;
-  
+
   //return tmp;
 };
 
