@@ -331,8 +331,8 @@ var Tasks = (function () {
   }
 
   function newTask(title, notes, callback) {
-    var index = findTask($("#notelist li.task:eq(1)").attr("data-index"));
-    index = index && index.index + 1 || 1;
+    // wont order correctly if /add_task/ is accessed directly
+    var index = tasks.length > 0 ? tasks[0].index + 1 : 1;
     $db.saveDoc({
       "type":"task",
       index: index,
