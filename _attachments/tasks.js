@@ -12,9 +12,25 @@ $.ajaxSetup({
   cache: false
 });
 
+// Doesnt handle ghosted events, will survive for now
+var pressed = Utils.isMobile() ? "click" : "click";
+
 var Tasks = (function () {
 
+  // Override link behaviour for mobiles because they are so damn slow
+  if (Utils.isMobile()) {
+
+    $(document).bind("touchend", function(e) {
+      if (e.target.nodeName === 'A' && e.target.getAttribute('href')) {
+        console.log("overridden");
+        e.preventDefault();
+        document.location.href = e.target.getAttribute('href');
+      }
+    });
+  }
+
   var mainDb  = document.location.pathname.split("/")[1],
+  paneWidth = 0,
   isMobile = Utils.isMobile(),
   editing = false,
   router  = new Router(),
@@ -25,40 +41,43 @@ var Tasks = (function () {
   servers = [],
   zIndex  = 0,
   currentPane = "pane1",
+  currentOffset = 0,
   $db     = $.couch.db(mainDb);
 
   var templates = {
     addserver_tpl : {
       transition: "slideUp",
-      events: { '.deleteserver' : {'event': 'click', 'callback' : deleteServer}}
+      events: { '.deleteserver' : {'event': pressed, 'callback' : deleteServer}}
     },
     addtask_tpl : {transition: "slideUp"},
     task_tpl : { transition: "slideHorizontal" },
     sync_tpl : {
       transition: "slideHorizontal",
       events : {
-        '.sync' : {'event': 'click', 'callback' : doSync}
+        '.sync' : {'event': pressed, 'callback' : doSync}
       }
     },
     home_tpl : {
       transition : "slideHorizontal",
       events : {
         '.checker' : {'event': 'change', 'callback' : markDone},
-        '.task' : {'event': 'click', 'callback' : viewTask},
-        '.delete' : {'event': 'click', 'callback' : deleteTask}
+        '.task' : {'event': pressed, 'callback' : viewTask},
+        '.delete' : {'event': pressed, 'callback' : deleteTask}
       },
       init : function(dom) {
-        $("#notelist", dom).sortable({
-          axis:'y',
-          distance:30
-        });
+        if (!isMobile) {
+          $("#notelist", dom).sortable({
+            axis:'y',
+            distance:30
+          });
 
-        $("#notelist", dom).bind( "sortstop", function(event, ui) {
-          var index = createIndex(ui.item);
-          if (index !== false) {
-            updateIndex(ui.item.attr("data-id"), index);
-          }
-        });
+          $("#notelist", dom).bind( "sortstop", function(event, ui) {
+            var index = createIndex(ui.item);
+            if (index !== false) {
+              updateIndex(ui.item.attr("data-id"), index);
+            }
+          });
+        }
       }
     }
   };
@@ -205,7 +224,7 @@ var Tasks = (function () {
     oldPane = (currentPane === "#pane1") ? "#pane1" : "#pane2";
     currentPane = (currentPane === "#pane1") ? "#pane2" : "#pane1";
     $(oldPane).css({'z-index':1});
-    $(currentPane).empty().css({'z-index':2});
+    $(currentPane).empty().width(paneWidth).css({'z-index':2});
 
     data = data || {};
     $("body").removeClass(current_tpl).addClass(tpl);
@@ -228,33 +247,78 @@ var Tasks = (function () {
 
     var transition = templates[tpl] && templates[tpl].transition;
     if (transition === 'slideUp') {
-      slidePane = $pane.css({position:"absolute", top:999, 'z-index': 3})
-        .appendTo("body").animate({top:0});
+      slidePane = $pane.addClass("slidepane")
+        .css({position:"absolute", top:-$("#wrapper").height(), 'z-index': 3})
+        .appendTo("#superwrapper");
+
+      // This is my, I dont know whats going on, try yielding and see if it works
+      // setting the top immediately after adding to the dom doesnt animate
+      setTimeout(function () {
+        transformY(slidePane, $("#wrapper").height());
+        //slidePane.css({top:0});
+      }, 0);
     } else if (slidePane) {
+
       $pane.appendTo($(currentPane));
-      $("#wrapper").css({left: -$(currentPane).position().left});
-      slidePane.animate({top:999}, {complete: function () {
+      var x = -$(currentPane).position().left;
+      $("#wrapper").css("-moz-transform", "translate(" + x + "px, 0)")
+        .css("-webkit-transform", "translate(" + x + "px, 0)");
+
+      transformY(slidePane, 0);
+
+      // Dont have callbacks to know when transition is finished, supposed
+      // to be 0.5s, make it 1.5s to be safe, then delete pane
+      setTimeout(function() {
         slidePane.remove();
         slidePane = null;
-      }});
+      }, 1500);
+
     } else {
+
+      if (isMobile) {
+        $("#superwrapper").attr("overflow", "hidden");
+      }
+      $("#wrapper").one("webkitTransitionEnd transitionend", function() {
+        $(oldPane).empty().width(0);
+        if (isMobile) {
+          $("#superwrapper").removeAttr("overflow");
+        }
+      });
+
+      // Incredibly ugly way to figure out which way to slide
       if (current_tpl) {
-        if (tpl === "task_tpl" ||
-            (tpl === "complete_tpl" && current_tpl === "home_tpl") ||
-            (tpl === "sync_tpl" && current_tpl === "home_tpl") ||
-            (tpl === "sync_tpl" && current_tpl === "complete_tpl")) {
-          $(currentPane).css({left:$(oldPane).position().left + $(oldPane).width()});
+        if (calcIndex(tpl, current_tpl)) {
+          slideX($(currentPane), $(oldPane).position().left + paneWidth);
         } else {
-          $(currentPane).css({left:$(oldPane).position().left - $(oldPane).width()});
+          slideX($(currentPane), $(oldPane).position().left - paneWidth);
         }
       }
       $pane.appendTo($(currentPane));
-      $("#wrapper").animate({left: -$(currentPane).position().left});
+      var pos = -$(currentPane).position().left;
+      $("#wrapper").css("-moz-transform", "translate(" + pos + "px, 0)")
+        .css("-webkit-transform", "translate(" + pos + "px, 0)");
     }
-
-
     current_tpl = tpl;
   }
+
+  function transformY(dom, x) {
+    dom.css("-moz-transform", "translate(0, " + x + "px)")
+      .css("-webkit-transform", "translate(0, " + x + "px)");
+  };
+
+  function transformX(dom, x) {
+    dom.css("-moz-transform", "translate(" + x + "px, 0)")
+      .css("-webkit-transform", "translate(" + x + "px, 0)");
+  };
+
+  function calcIndex(a, b) {
+    var indexii = {home_tpl:1, complete_tpl:2, sync_tpl:3, task_tpl:4};
+    return indexii[a] > indexii[b];
+  };
+
+  function slideX($dom, pos) {
+    $dom.css("left", pos);
+ };
 
   function findTask(id) {
     for(var i = 0; i < tasks.length; i++) {
@@ -372,17 +436,31 @@ var Tasks = (function () {
       if ($input.is(":checked")) {
         $wrapper.addClass("checked");
       }
-      $wrapper.bind("click", function(){
+      $wrapper.bind(pressed, function(){
         $wrapper.toggleClass("checked");
         $input.attr("checked", !$input.is(":checked")).change();
       });
     });
   };
 
+  $(document).bind("keypress", function (e) {
+    if (e.which === 13 && current_tpl !== "add_task") {
+      document.location.href = "#!/add_task/";
+    }
+  });
+
   $(window).bind("resize", function () {
-    $(".pane").width($("body").width());
+    paneWidth = $("body").width();
+    // if (current_tpl !== null) {
+    //   router.refresh();
+    // }
   });
   $(window).resize();
+
+  if (!isMobile) {
+    $("#superwrapper").css({'overflow-x':"hidden", 'overflow-y':"scroll"});
+    paneWidth -= 16;
+  }
 
   router.init();
 

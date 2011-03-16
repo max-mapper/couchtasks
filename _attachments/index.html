@@ -4,7 +4,7 @@
 
     <meta charset="utf-8" />
     <meta name="viewport"
-          content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+          content="width=device-width, user-scalable=no;">
 
     <title>CouchTasks</title>
     <link rel="stylesheet" href="style/main.css">
@@ -13,17 +13,19 @@
 
   <body>
 
-    <div id="wrapper">
-      <div class="pane" id="pane1"></div>
-      <div class="pane" id="pane2"></div>
+    <div id="superwrapper">
+      <div id="wrapper">
+        <div class="pane" id="pane1"></div>
+        <div class="pane" id="pane2"></div>
+      </div>
     </div>
 
     <footer>
-      <a href="#!" class="home"><div></div></a>
-      <a href="#!/complete/" class="archive"><div></div></a>
-      <a href="#!/sync/" class="cloud"><div></div></a>
-      <a href="#!/add_task/" id="add"><div></div></a>
-      <a href="#!/add_server/" id="add_serverbtn"><div></div></a>
+      <a href="#!" class="home"></a>
+      <a href="#!/complete/" class="archive"></a>
+      <a href="#!/sync/" class="cloud"></a>
+      <a href="#!/add_task/" id="add"></a>
+      <a href="#!/add_server/" id="add_serverbtn"></a>
     </footer>
 
     <script type="text/html" id="addtask_tpl">
