@@ -42,6 +42,7 @@ input[type=text],input[type=password], textarea {
     -webkit-appearance:none;
     -moz-appearance:none;
     -webkit-focus-ring-color:  rgba(0, 0, 0, 0);
+    -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     resize: none;
@@ -82,6 +83,8 @@ input[type=submit] {
 fieldset {
     border-radius:10px;
     border:1px solid #AAA;
+    -moz-box-shadow:0px 1px 2px #666;
+    -webkit-box-shadow:0px 1px 2px #666;
     box-shadow:0px 1px 2px #666;
     background:white;
     overflow:hidden;
@@ -89,8 +92,8 @@ fieldset {
 }
 
 fieldset input:first-child, fieldset textarea:first-child {
-    border-top-left-radius:15px;
-    border-top-right-radius:15px;
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
     border-top:0px !important;
 }
 
