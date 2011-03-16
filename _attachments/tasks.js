@@ -22,7 +22,6 @@ var Tasks = (function () {
 
     $(document).bind("touchend", function(e) {
       if (e.target.nodeName === 'A' && e.target.getAttribute('href')) {
-        console.log("overridden");
         e.preventDefault();
         document.location.href = e.target.getAttribute('href');
       }
@@ -68,13 +67,15 @@ var Tasks = (function () {
         if (!isMobile) {
           $("#notelist", dom).sortable({
             axis:'y',
-            distance:30
-          });
-
-          $("#notelist", dom).bind( "sortstop", function(event, ui) {
-            var index = createIndex(ui.item);
-            if (index !== false) {
-              updateIndex(ui.item.attr("data-id"), index);
+            distance:30,
+            start: function(event, ui) {
+              ui.item.attr("data-noclick","true");
+            },
+            stop: function(event, ui) {
+              var index = createIndex(ui.item);
+              if (index !== false) {
+                updateIndex(ui.item.attr("data-id"), index);
+              }
             }
           });
         }
@@ -330,7 +331,7 @@ var Tasks = (function () {
   }
 
   function newTask(title, notes, callback) {
-    var index = findTask($("#notelist li.task:eq(1)").attr("data-id"));
+    var index = findTask($("#notelist li.task:eq(1)").attr("data-index"));
     index = index && index.index + 1 || 1;
     $db.saveDoc({
       "type":"task",
@@ -368,6 +369,10 @@ var Tasks = (function () {
   };
 
   function viewTask(e) {
+    if ($(this).attr("data-noclick")) {
+      $(this).removeAttr("data-noclick");
+      return;
+    }
     if (!$(e.target).is("li.task") && e.target.nodeName !== 'SPAN') {
       return;
     }
