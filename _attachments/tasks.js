@@ -444,7 +444,7 @@ var Tasks = (function () {
   };
 
   $(document).bind("keypress", function (e) {
-    if (e.which === 13 && current_tpl !== "add_task") {
+    if (e.which === 13 && e.target.nodeName !== 'TEXTAREA') {
       document.location.href = "#!/add_task/";
     }
   });
