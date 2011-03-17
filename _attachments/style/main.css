@@ -6,7 +6,8 @@
 
 body {
     background:#e9e7e4;
-    overflow:hidden;
+    overflow-x:hidden;
+    overflow-y:scroll;
 }
 
 body, p {
@@ -148,41 +149,20 @@ input[type=checkbox] {
 }
 
 /* LAYOUT */
-#superwrapper {
-    position:absolute;
-    right:0px;
-    left:0px;
-    top:50px;
-    bottom:0px;
-}
-
-#wrapper {
-    position:absolute;
-    right:0px;
-    left:0px;
-    top:0px;
-    bottom:0px;
-    display:hidden;
+#content {
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
 }
 
-.pane, .content {
-    background:#e9e7e4;
-    height:100%;
-    width:100%;
-    position:absolute;
-}
-
-/* Fun bug, if you give #wrapper a positive left: and .pane a negative left:
- * then overflow:hidden will kill it, if #wrapper stays negative and .pane
- * positive, all is well (overflow:hidden is needed to stop mobile scrolling)
- */
 .pane {
+    background:#e9e7e4;
+    position:absolute;
+    top:50px;
+    width:100%;
+    height:100%;
 }
 
 .slidepane {
-    background:#e9e7e4;
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
 }

@@ -31,7 +31,6 @@ var Tasks = (function () {
   var mainDb  = document.location.pathname.split("/")[1],
   paneWidth = 0,
   isMobile = Utils.isMobile(),
-  editing = false,
   router  = new Router(),
   current_tpl = null,
   slidePane = null,
@@ -39,8 +38,8 @@ var Tasks = (function () {
   tasks   = [],
   servers = [],
   zIndex  = 0,
-  currentPane = "pane1",
   currentOffset = 0,
+  lastPane = null,
   $db     = $.couch.db(mainDb);
 
   var templates = {
@@ -222,16 +221,11 @@ var Tasks = (function () {
 
   function render(tpl, dom, data) {
 
-    oldPane = (currentPane === "#pane1") ? "#pane1" : "#pane2";
-    currentPane = (currentPane === "#pane1") ? "#pane2" : "#pane1";
-    $(oldPane).css({'z-index':1});
-    $(currentPane).empty().width(paneWidth).css({'z-index':2});
-
     data = data || {};
     $("body").removeClass(current_tpl).addClass(tpl);
 
     var rendered = Mustache.to_html($("#" + tpl).html(), data),
-    $pane = $("<div class='content'>" + rendered + "</div>");
+    $pane = $("<div class='pane'><div class='content'>" + rendered + "</div></div>");
     createCheckBox($pane);
 
     // Bind this templates events
@@ -247,57 +241,49 @@ var Tasks = (function () {
     }
 
     var transition = templates[tpl] && templates[tpl].transition;
-    if (transition === 'slideUp') {
-      slidePane = $pane.addClass("slidepane")
-        .css({position:"absolute", top:-$("#wrapper").height(), 'z-index': 3})
-        .appendTo("#superwrapper");
 
-      // This is my, I dont know whats going on, try yielding and see if it works
-      // setting the top immediately after adding to the dom doesnt animate
-      setTimeout(function () {
-        transformY(slidePane, $("#wrapper").height());
-        //slidePane.css({top:0});
-      }, 0);
+    if (transition === 'slideUp') {
+
+      slidePane = $pane.addClass("slidepane")
+        .css({left:currentOffset, height: $(window).height(),
+              top:-$(window).height(), 'z-index': 3})
+        .appendTo("#content");
+      transformY(slidePane, $(window).height() + 50);
+
     } else if (slidePane) {
 
-      $pane.appendTo($(currentPane));
-      var x = -$(currentPane).position().left;
-      $("#wrapper").css("-moz-transform", "translate(" + x + "px, 0)")
-        .css("-webkit-transform", "translate(" + x + "px, 0)");
+      if (lastPane) {
+        lastPane.remove();
+        lastPane = null;
+      }
 
+      $pane.css({"left":currentOffset}).appendTo($("#content"));
       transformY(slidePane, 0);
+      lastPane = $pane;
 
-      // Dont have callbacks to know when transition is finished, supposed
-      // to be 0.5s, make it 1.5s to be safe, then delete pane
-      setTimeout(function() {
+      slidePane.one("webkitTransitionEnd transitionend", function() {
         slidePane.remove();
         slidePane = null;
-      }, 1500);
+      });
 
     } else {
 
-      if (isMobile) {
-        $("#superwrapper").attr("overflow", "hidden");
+      if (current_tpl) {
+        currentOffset += (calcIndex(tpl, current_tpl))
+          ? paneWidth
+          : -paneWidth;
       }
-      $("#wrapper").one("webkitTransitionEnd transitionend", function() {
-        $(oldPane).empty().width(0);
-        if (isMobile) {
-          $("#superwrapper").removeAttr("overflow");
+
+      var tmp = lastPane;
+      $("#content").one("webkitTransitionEnd transitionend", function() {
+        if (tmp) {
+          tmp.remove();
+          tmp = null;
         }
       });
-
-      // Incredibly ugly way to figure out which way to slide
-      if (current_tpl) {
-        if (calcIndex(tpl, current_tpl)) {
-          slideX($(currentPane), $(oldPane).position().left + paneWidth);
-        } else {
-          slideX($(currentPane), $(oldPane).position().left - paneWidth);
-        }
-      }
-      $pane.appendTo($(currentPane));
-      var pos = -$(currentPane).position().left;
-      $("#wrapper").css("-moz-transform", "translate(" + pos + "px, 0)")
-        .css("-webkit-transform", "translate(" + pos + "px, 0)");
+      $pane.css({"left":currentOffset}).appendTo($("#content"));
+      transformX($("#content"), -currentOffset);
+      lastPane = $pane;
     }
     current_tpl = tpl;
   }
@@ -316,10 +302,6 @@ var Tasks = (function () {
     var indexii = {home_tpl:1, complete_tpl:2, sync_tpl:3, task_tpl:4};
     return indexii[a] > indexii[b];
   };
-
-  function slideX($dom, pos) {
-    $dom.css("left", pos);
- };
 
   function findTask(id) {
     for(var i = 0; i < tasks.length; i++) {
@@ -456,16 +438,8 @@ var Tasks = (function () {
 
   $(window).bind("resize", function () {
     paneWidth = $("body").width();
-    // if (current_tpl !== null) {
-    //   router.refresh();
-    // }
   });
   $(window).resize();
-
-  if (!isMobile) {
-    $("#superwrapper").css({'overflow-x':"hidden", 'overflow-y':"scroll"});
-    paneWidth -= 16;
-  }
 
   router.init();
 
