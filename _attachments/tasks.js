@@ -435,15 +435,15 @@ var Tasks = (function () {
   };
 
   $("#edittask_btn").bind("click", function (e) {
-    $("#edit_task_form").submit();
+    $("#edit_task_form").trigger("submit");
   });
 
   $("#createserver_btn").bind("click", function (e) {
-    $("#syncform").submit();
+    $("#syncform").trigger("submit");
   });
 
   $("#createtask_btn").bind("click", function (e) {
-    $("#add_task_frm").submit();
+    $("#add_task_frm").trigger("submit");
   });
 
   $(document).bind("keypress", function (e) {
