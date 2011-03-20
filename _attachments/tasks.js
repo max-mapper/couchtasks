@@ -68,6 +68,7 @@ var Tasks = (function () {
       init : function(dom) {
         if (!isMobile) {
           $("#notelist", dom).sortable({
+            items: "li:not(.header)",
             axis:'y',
             distance:30,
             start: function(event, ui) {
