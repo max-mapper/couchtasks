@@ -24,7 +24,7 @@ ul {
 }
 
 h3 {
-    text-indent:10px;
+    padding-left:10px;
     color: #444;
     text-shadow: 1px 1px 1px #FFF;
 }
@@ -239,8 +239,8 @@ footer a {
     color:white;
 }
 
-
 #add, #add_serverbtn {
+    display:none;
     position:absolute;
     right:0px;
     border-right:0px;
@@ -250,19 +250,15 @@ footer a:first-child {
     border-left:0px;
 }
 
-.addserver_tpl #createserver_btn {
-    display:block;
-}
-#createserver_btn {
-    display:none;
-}
 
-.addtask_tpl #createtask_btn {
-    display:block;
-}
-#createtask_btn {
-    display:none;
-}
+.addserver_tpl #createserver_btn { display:block; }
+#createserver_btn { display:none; }
+
+.task_tpl #edittask_btn { display:block; }
+#edittask_btn { display:none; }
+
+.addtask_tpl #createtask_btn { display:block; }
+#createtask_btn { display:none; }
 
 .addtask_tpl #add,
 .home_tpl footer a.home,
@@ -271,16 +267,10 @@ footer a:first-child {
     opacity:1;
 }
 
-#add_serverbtn {
-    display:none;
-}
 .sync_tpl #add_serverbtn {
     display:block;
 }
 
-#add {
-    display:none;
-}
 .home_tpl #add, .complete_tpl #add {
     display:block;
 }

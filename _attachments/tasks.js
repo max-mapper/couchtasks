@@ -434,6 +434,9 @@ var Tasks = (function () {
     });
   };
 
+  $("#edittask_btn").bind("click", function (e) {
+    $("#edit_task_form").submit();
+  });
 
   $("#createserver_btn").bind("click", function (e) {
     $("#syncform").submit();

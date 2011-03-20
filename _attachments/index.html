@@ -19,10 +19,14 @@
       <a href="#!" class="home"></a>
       <a href="#!/complete/" class="archive"></a>
       <a href="#!/sync/" class="cloud"></a>
-      <a id="createtask_btn" class="plain_btn active">Create</a>
-      <a id="createserver_btn" class="plain_btn active">Create</a>
+
       <a href="#!/add_task/" id="add"></a>
       <a href="#!/add_server/" id="add_serverbtn"></a>
+
+      <a id="createtask_btn" class="plain_btn active">Create</a>
+      <a id="edittask_btn" class="plain_btn active">Save</a>
+      <a id="createserver_btn" class="plain_btn active">Create</a>
+
     </footer>
 
     <script type="text/html" id="addtask_tpl">
@@ -91,7 +95,7 @@
 
     <script type="text/html" id="task_tpl">
       <h3>{{title}}</h3>
-      <form action="#edit">
+      <form action="#edit" id="edit_task_form">
         <fieldset>
           <textarea placeholder="Enter Notes" name="notes">{{notes}}</textarea>
           <div class="input">
