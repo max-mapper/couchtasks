@@ -33,7 +33,9 @@
       <form action="#add_task" id="add_task_frm">
         <fieldset>
           <input type="text" name="title" placeholder="Title" required />
-          <textarea placeholder="Enter Notes" name="notes"></textarea>
+          <div class="textarea">
+            <textarea placeholder="Enter Notes" name="notes"></textarea>
+          </div>
         </fieldset>
       </form>
     </script>
@@ -95,7 +97,9 @@
       <h3>{{title}}</h3>
       <form action="#edit" id="edit_task_form">
         <fieldset>
-          <textarea placeholder="Enter Notes" name="notes">{{notes}}</textarea>
+          <div class="textarea">
+            <textarea placeholder="Enter Notes" name="notes">{{notes}}</textarea>
+          </div>
           <div class="input">
             <input type="checkbox" {{completed}} name="completed" />
             <label>Completed</label>

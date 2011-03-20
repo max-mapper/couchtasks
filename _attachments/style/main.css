@@ -57,7 +57,11 @@ input[type=text]:focus, input[type=password]:focus, textarea:focus {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+.textarea {
+    padding:10px;
+}
 textarea {
+    padding:0px;
     height:140px;
 }
 
@@ -92,7 +96,7 @@ fieldset {
     margin-bottom:20px;
 }
 
-fieldset input:first-child, fieldset textarea:first-child {
+fieldset input:first-child, fieldset .textarea:first-child {
     border-top-left-radius:10px;
     border-top-right-radius:10px;
     border-top:0px !important;
@@ -106,7 +110,7 @@ fieldset input:last-child, fieldset textarea:last-child {
 div.input,
 fieldset input[type=password],
 fieldset input[type=text],
-fieldset textarea {
+fieldset .textarea {
     border-top:1px solid #CCC;
 }
 
