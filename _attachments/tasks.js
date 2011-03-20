@@ -45,9 +45,11 @@ var Tasks = (function () {
   var templates = {
     addserver_tpl : {
       transition: "slideUp",
-      events: { '.deleteserver' : {'event': pressed, 'callback' : deleteServer}}
+      events: { '.deleteserver' : {'event': pressed, 'callback' : deleteServer},
+                'input' : {'event':"keyup", 'callback' : checkCanSaveServer}}
     },
     addtask_tpl : {
+      events: { 'input,textarea' : {'event':"keyup", 'callback' : checkCanSaveNote}},
       transition: "slideUp"
     },
     task_tpl : { transition: "slideHorizontal" },
@@ -303,6 +305,22 @@ var Tasks = (function () {
   function transformX(dom, x) {
     dom.css("-moz-transform", "translate(" + x + "px, 0)")
       .css("-webkit-transform", "translate(" + x + "px, 0)");
+  };
+
+  function checkCanSaveNote(e) {
+    if ($("input[name=title]").val() === "") {
+      $("#createtask_btn").removeClass("active");
+    } else {
+      $("#createtask_btn").addClass("active");
+    }
+  };
+
+  function checkCanSaveServer(e) {
+    if ($("input[name=server]").val() === "") {
+      $("#createserver_btn").removeClass("active");
+    } else {
+      $("#createserver_btn").addClass("active");
+    }
   };
 
   function calcIndex(a, b) {
