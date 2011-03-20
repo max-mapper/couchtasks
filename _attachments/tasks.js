@@ -149,6 +149,10 @@ var Tasks = (function () {
   });
 
   router.post('add_server', function (e, details) {
+    if (details.server === "") {
+      $("input[name=server]").addClass("formerror");
+      return;
+    }
     details.type = "server";
     $db.saveDoc(details, {"success": router.back});
   });
@@ -318,6 +322,12 @@ var Tasks = (function () {
   }
 
   function newTask(title, notes, callback) {
+
+    if(title === "") {
+      $("input[name=title]").addClass("formerror");
+      return;
+    }
+
     // wont order correctly if /add_task/ is accessed directly
     var index = tasks.length > 0 ? tasks[0].index + 1 : 1;
     $db.saveDoc({
@@ -373,7 +383,6 @@ var Tasks = (function () {
     database = li.attr("data-database"),
     user = li.attr("data-username"),
     pass = li.attr("data-password");
-
 
     var error = function() {
       $("#feedback").addClass("error").text("Sync Failed!").show();

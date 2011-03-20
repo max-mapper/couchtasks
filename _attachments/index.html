@@ -44,7 +44,7 @@
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
           <input class="checker" type="checkbox" />
-          <span class="title">{{title}}</span>
+          <span class="title">{{title}}</span>&nbsp;
           <span class="arrow right">&rsaquo;</span>
         </li>
         {{/notes}}
@@ -58,7 +58,7 @@
         {{#notes}}
         <li data-id="{{id}}" data-rev="{{rev}}" data-index="{{index}}" class="task">
           <input class="checker" type="checkbox" />
-          <span class="title">{{title}}</span>
+          <span class="title">{{title}}</span>&nbsp;
           <a class="delete right">delete</a>
         </li>
         {{/notes}}
@@ -83,7 +83,7 @@
         <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}"
             data-database="{{database}}"
             data-username="{{username}}" data-password="{{password}}" class="server">
-          {{server}}
+          {{server}}&nbsp;
           <a class="deleteserver right">delete</a>
         </li>
         {{/servers}}
@@ -112,7 +112,7 @@
         <li data-id="{{id}}" data-rev="{{rev}}" data-server="{{server}}"
             data-database="{{database}}" data-username="{{username}}"
             data-password="{{password}}" class="server">
-          {{server}}
+          {{server}}&nbsp;
           <div id="feedback"></div>
           <a class="sync right"><div  />sync</a>
         </li>

@@ -413,3 +413,7 @@ footer a:first-child {
 .success {
     background: -moz-linear-gradient(center top , #B8DB29, #5A8F00) repeat scroll 0 0 transparent;
 }
+
+.formerror {
+    background:#FFD6E0;
+};
