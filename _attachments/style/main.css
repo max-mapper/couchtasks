@@ -215,6 +215,31 @@ footer a {
 #add { background-image:url(../addnote.png); }
 #add_serverbtn { background-image:url(../server.png); }
 
+.plain_btn {
+    background:-moz-linear-gradient(center top , #555, #333);
+    opacity:1;
+    width:auto;
+    font-size:14px;
+    position:absolute;
+    right:0px;
+    border:0px;
+    padding:6px;
+    margin:10px;
+    height:auto;
+    border:1px solid #000;
+    border-radius:3px;
+    color:#999;
+    text-shadow: 1px 1px 1px #000;
+    letter-spacing:1.1px;
+    cursor:pointer;
+}
+
+.plain_btn.active {
+    background: -moz-linear-gradient(center top , #B8DB29, #5A8F00) repeat scroll 0 0 transparent;
+    color:white;
+}
+
+
 #add, #add_serverbtn {
     position:absolute;
     right:0px;
@@ -225,7 +250,20 @@ footer a:first-child {
     border-left:0px;
 }
 
-.addserver_tpl #add_serverbtn,
+.addserver_tpl #createserver_btn {
+    display:block;
+}
+#createserver_btn {
+    display:none;
+}
+
+.addtask_tpl #createtask_btn {
+    display:block;
+}
+#createtask_btn {
+    display:none;
+}
+
 .addtask_tpl #add,
 .home_tpl footer a.home,
 .complete_tpl footer a.archive,
@@ -236,11 +274,22 @@ footer a:first-child {
 #add_serverbtn {
     display:none;
 }
-.addserver_tpl #add_serverbtn, .sync_tpl #add_serverbtn {
+.sync_tpl #add_serverbtn {
     display:block;
 }
-.addserver_tpl #add, .sync_tpl #add {
+
+#add {
     display:none;
+}
+.home_tpl #add, .complete_tpl #add {
+    display:block;
+}
+
+#addserver_btn {
+    display:none;
+}
+.complete_tpl #addserver_btn {
+    display:block;
 }
 
 #notelist li {

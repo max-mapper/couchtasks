@@ -19,17 +19,19 @@
       <a href="#!" class="home"></a>
       <a href="#!/complete/" class="archive"></a>
       <a href="#!/sync/" class="cloud"></a>
+      <a id="createtask_btn" class="plain_btn active">Create</a>
+      <a id="createserver_btn" class="plain_btn active">Create</a>
       <a href="#!/add_task/" id="add"></a>
       <a href="#!/add_server/" id="add_serverbtn"></a>
     </footer>
 
     <script type="text/html" id="addtask_tpl">
-      <form action="#add_task">
+      <form action="#add_task" id="add_task_frm">
         <fieldset>
           <input type="text" name="title" placeholder="Title" required />
           <textarea placeholder="Enter Notes" name="notes"></textarea>
         </fieldset>
-        <input type="submit" value="Create Task" />
+        <!-- <input type="submit" value="Create Task" /> -->
       </form>
     </script>
 
@@ -71,7 +73,7 @@
           <input type="text" name="username" placeholder="Username (johndoe)" />
           <input type="password" name="password" placeholder="Password" />
         </fieldset>
-        <input type="submit" value="Add Server" />
+        <!-- <input type="submit" value="Add Server" /> -->
       </form>
 
       <ul id="notelist">

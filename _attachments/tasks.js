@@ -22,6 +22,7 @@ var Tasks = (function () {
 
     $(document).bind("touchend", function(e) {
       if (e.target.nodeName === 'A' && e.target.getAttribute('href')) {
+        console.log("wtf?");
         e.preventDefault();
         document.location.href = e.target.getAttribute('href');
       }
@@ -47,7 +48,9 @@ var Tasks = (function () {
       transition: "slideUp",
       events: { '.deleteserver' : {'event': pressed, 'callback' : deleteServer}}
     },
-    addtask_tpl : {transition: "slideUp"},
+    addtask_tpl : {
+      transition: "slideUp"
+    },
     task_tpl : { transition: "slideHorizontal" },
     sync_tpl : {
       transition: "slideHorizontal",
@@ -150,6 +153,7 @@ var Tasks = (function () {
   });
 
   router.post('add_task', function (e, details) {
+    console.log("hello");
     newTask(details.title, details.notes, router.back);
   });
 
@@ -429,6 +433,15 @@ var Tasks = (function () {
       });
     });
   };
+
+
+  $("#createserver_btn").bind("click", function (e) {
+    $("#syncform").submit();
+  });
+
+  $("#createtask_btn").bind("click", function (e) {
+    $("#add_task_frm").submit();
+  });
 
   $(document).bind("keypress", function (e) {
     if (e.which === 13 && e.target.nodeName !== 'TEXTAREA') {
