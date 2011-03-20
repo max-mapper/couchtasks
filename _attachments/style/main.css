@@ -217,6 +217,7 @@ footer a {
 
 .plain_btn {
     background:-moz-linear-gradient(center top , #555, #333);
+    background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#555), to(#333));
     opacity:1;
     width:auto;
     font-size:14px;
@@ -236,6 +237,7 @@ footer a {
 
 .plain_btn.active {
     background: -moz-linear-gradient(center top , #B8DB29, #5A8F00) repeat scroll 0 0 transparent;
+    background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#B8DB29), to(#5A8F00));
     color:white;
 }
 
