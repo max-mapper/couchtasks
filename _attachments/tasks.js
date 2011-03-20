@@ -253,9 +253,14 @@ var Tasks = (function () {
 
     if (transition === 'slideUp') {
 
+      $("#content").one("webkitTransitionEnd transitionend", function() {
+        if (lastPane) {
+          lastPane.hide();
+        }
+      });
+
       slidePane = $pane.addClass("slidepane")
-        .css({left:currentOffset, height: $(window).height(),
-              top:-$(window).height(), 'z-index': 3})
+        .css({left:currentOffset, top:-$(window).height(), 'z-index': 3})
         .appendTo("#content");
       transformY(slidePane, $(window).height() + 50);
 
@@ -278,9 +283,7 @@ var Tasks = (function () {
     } else {
 
       if (current_tpl) {
-        currentOffset += (calcIndex(tpl, current_tpl))
-          ? paneWidth
-          : -paneWidth;
+        currentOffset += (calcIndex(tpl, current_tpl)) ? paneWidth : -paneWidth;
       }
 
       var tmp = lastPane;
