@@ -407,10 +407,13 @@ footer a:first-child {
 
 .error {
    background: -moz-linear-gradient(center top , #C81E2B, #F04349) repeat scroll 0 0 transparent;
+   background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#C81E2B), to(#F04349));
 }
 
 .success {
     background: -moz-linear-gradient(center top , #B8DB29, #5A8F00) repeat scroll 0 0 transparent;
+    background: -webkit-gradient(linear, 0% 40%, 0% 70%, from(#B8DB29), to(#5A8F00));
+
 }
 
 .formerror {
