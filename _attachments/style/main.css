@@ -225,9 +225,10 @@ footer a {
     right:0px;
     border:0px;
     padding:6px;
-    margin:10px;
+    margin:9px;
     height:auto;
     border:1px solid #000;
+    =webkit-border-radius:3px;
     border-radius:3px;
     color:#999;
     text-shadow: 1px 1px 1px #000;
