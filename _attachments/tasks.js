@@ -22,7 +22,6 @@ var Tasks = (function () {
 
     $(document).bind("touchend", function(e) {
       if (e.target.nodeName === 'A' && e.target.getAttribute('href')) {
-        console.log("wtf?");
         e.preventDefault();
         document.location.href = e.target.getAttribute('href');
       }
@@ -158,7 +157,6 @@ var Tasks = (function () {
   });
 
   router.post('add_task', function (e, details) {
-    console.log("hello");
     newTask(details.title, details.notes, router.back);
   });
 
