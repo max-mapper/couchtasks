@@ -150,6 +150,7 @@ input[type=checkbox] {
 
 /* LAYOUT */
 #content {
+    position:relative;
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
 }

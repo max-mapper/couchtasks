@@ -293,7 +293,10 @@ var Tasks = (function () {
           tmp = null;
         }
       });
-      $pane.css({"left":currentOffset}).appendTo($("#content"));
+
+      transformX($pane, currentOffset);
+      $pane.appendTo($("#content"));
+
       transformX($("#content"), -currentOffset);
       lastPane = $pane;
     }
