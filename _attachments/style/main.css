@@ -127,7 +127,7 @@ input[type=checkbox] {
     width:16px;
     height:16px;
     background-size:100%;
-    background-image:url(../unchecked.png);
+    background-image:url(../img/unchecked.png);
 }
 
 .checkbox {
@@ -141,7 +141,7 @@ input[type=checkbox] {
 }
 
 .checkbox.checked div{
-    background-image:url(../checked.png);
+    background-image:url(../img/checked.png);
 }
 
 ::-webkit-input-placeholder {
@@ -213,11 +213,11 @@ footer a {
     opacity:0.5;
 }
 
-.home { background-image:url(../home.png); }
-.archive { background-image:url(../archive.png); }
-.cloud { background-image:url(../cloud.png); }
-#add { background-image:url(../addnote.png); }
-#add_serverbtn { background-image:url(../server.png); }
+.home { background-image:url(../img/home.png); }
+.archive { background-image:url(../img/archive.png); }
+.cloud { background-image:url(../img/cloud.png); }
+#add { background-image:url(../img/addnote.png); }
+#add_serverbtn { background-image:url(../img/server.png); }
 
 .plain_btn {
     background:-moz-linear-gradient(center top , #555, #333);
@@ -331,7 +331,7 @@ footer a:first-child {
     padding:10px;
     width:16px;
     height:16px;
-    background:url(../delete.png) no-repeat center center;
+    background:url(../img/delete.png) no-repeat center center;
     background-size:50%;
     text-indent:-9999px;
     border:0px;
@@ -355,7 +355,7 @@ footer a:first-child {
 }
 
 .sync div {
-    background:url(../sync.png);
+    background:url(../img/sync.png);
     display:block;
     float:left;
     width:16px;
