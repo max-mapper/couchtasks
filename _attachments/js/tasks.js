@@ -1,4 +1,4 @@
-/*jshint white:true */
+/*jshint */
 
 window.log = function(){
   log.history = log.history || [];
@@ -94,7 +94,7 @@ var Tasks = (function () {
       descending: true,
       success : function (data) {
         tasks = getValues(data.rows);
-        render("home_tpl", "#home_content", {notes:tasks});
+        render(/^(!)?$/, "home_tpl", "#home_content", {notes:tasks});
       }
     });
   });
@@ -103,13 +103,13 @@ var Tasks = (function () {
     $db.view('couchtasks/servers', {
       success : function (data) {
         servers = getValues(data.rows);
-        render("addserver_tpl", "#add_server", {servers:servers});
+        render('!/add_server/', "addserver_tpl", "#add_server", {servers:servers});
       }
     });
   });
 
   router.get('!/add_task/', function () {
-    render("addtask_tpl", "#add_content");
+    render('!/add_task/', "addtask_tpl", "#add_content");
   });
 
   router.get('!/complete/', function (id) {
@@ -117,18 +117,20 @@ var Tasks = (function () {
       descending: true,
       success : function (data) {
         tasks = getValues(data.rows);
-        render("complete_tpl", "#complete_content", {notes:tasks});
+        render('!/complete/', "complete_tpl", "#complete_content", {notes:tasks});
       }
     });
   });
 
   router.get('!/sync/', function (id) {
+    setTimeout(function () {
     $db.view('couchtasks/servers', {
       success : function (data) {
         servers = getValues(data.rows);
-        render("sync_tpl", "#sync_content", {servers:servers});
+        render('!/sync/', "sync_tpl", "#sync_content", {servers:servers});
       }
     });
+    }, 2000);
   });
 
   router.get('!/task/:id/', function (id) {
@@ -136,7 +138,7 @@ var Tasks = (function () {
       success: function(doc) {
         docs[doc._id] = doc;
         doc.completed = doc.status === "complete" ? "checked='checked'" : "";
-        render("task_tpl", null, doc);
+        render('!/task/:id/', "task_tpl", null, doc);
       }
     });
   });
@@ -144,8 +146,8 @@ var Tasks = (function () {
   router.post('edit', function (e, details) {
     var doc = docs[details.id];
     doc.notes = details.notes;
-    doc.status = details.completed && details.completed === "on"
-      ? "complete" : "active";
+    doc.status = details.completed && details.completed === "on" ?
+      "complete" : "active";
     $db.saveDoc(doc, {"success": router.back});
   });
 
@@ -169,12 +171,11 @@ var Tasks = (function () {
       "complete_tpl": {"checked": "active", "unchecked": "complete"}
     };
 
-    var cur_status = status[current_tpl][$(this).is(":checked")
-                                         ? "checked" : "unchecked"],
+    var cur_status = status[current_tpl][$(this).is(":checked") ? "checked" : "unchecked"],
     li = $(e.target).parents("li"),
     id = li.attr("data-id"),
-    url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id
-      + "?status=" + cur_status;
+    url = "/" + mainDb + "/_design/couchtasks/_update/update_status/" + id +
+      "?status=" + cur_status;
 
     $.ajax({
       url: url,
@@ -190,7 +191,7 @@ var Tasks = (function () {
           }
         }
     });
-  };
+  }
 
   function updateIndex(id, index) {
     var url = "/" + mainDb + "/_design/couchtasks/_update/update_index/" + id +
@@ -228,7 +229,11 @@ var Tasks = (function () {
     return arr;
   }
 
-  function render(tpl, dom, data) {
+  function render(url, tpl, dom, data) {
+
+    if (router.matchesCurrent(url) === null) {
+      return;
+    }
 
     data = data || {};
     $("body").removeClass(current_tpl).addClass(tpl);
@@ -306,12 +311,12 @@ var Tasks = (function () {
   function transformY(dom, x) {
     dom.css("-moz-transform", "translate(0, " + x + "px)")
       .css("-webkit-transform", "translate(0, " + x + "px)");
-  };
+  }
 
   function transformX(dom, x) {
     dom.css("-moz-transform", "translate(" + x + "px, 0)")
       .css("-webkit-transform", "translate(" + x + "px, 0)");
-  };
+  }
 
   function checkCanSaveNote(e) {
     if ($("input[name=title]").val() === "") {
@@ -319,7 +324,7 @@ var Tasks = (function () {
     } else {
       $("#createtask_btn").addClass("active");
     }
-  };
+  }
 
   function checkCanSaveServer(e) {
     if ($("input[name=server]").val() === "") {
@@ -327,12 +332,12 @@ var Tasks = (function () {
     } else {
       $("#createserver_btn").addClass("active");
     }
-  };
+  }
 
   function calcIndex(a, b) {
     var indexii = {home_tpl:1, complete_tpl:2, sync_tpl:3, task_tpl:4};
     return indexii[a] > indexii[b];
-  };
+  }
 
   function findTask(id) {
     for(var i = 0; i < tasks.length; i++) {
