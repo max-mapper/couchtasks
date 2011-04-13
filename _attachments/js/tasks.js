@@ -90,7 +90,7 @@ var Tasks = (function () {
   templates.complete_tpl = templates.home_tpl;
 
   router.get(/^(!)?$/, function () {
-    $db.view('couchtasks/tasks', {
+    view('couchtasks/tasks', {
       descending: true,
       success : function (data) {
         tasks = getValues(data.rows);
@@ -100,7 +100,7 @@ var Tasks = (function () {
   });
 
   router.get('!/add_server/', function () {
-    $db.view('couchtasks/servers', {
+    view('couchtasks/servers', {
       success : function (data) {
         servers = getValues(data.rows);
         render('!/add_server/', "addserver_tpl", "#add_server", {servers:servers});
@@ -146,7 +146,10 @@ var Tasks = (function () {
     doc.notes = details.notes;
     doc.status = details.completed && details.completed === "on" ?
       "complete" : "active";
-    $db.saveDoc(doc, {"success": router.back});
+    $db.saveDoc(doc, {"success": function () {
+      viewCache = {};
+      router.back();
+    }});
   });
 
   router.post('add_server', function (e, details) {
@@ -155,12 +158,32 @@ var Tasks = (function () {
       return;
     }
     details.type = "server";
-    $db.saveDoc(details, {"success": router.back});
+    $db.saveDoc(details, {"success": function () {
+      viewCache = {};
+      router.back();
+    }});
   });
 
   router.post('add_task', function (e, details) {
-    newTask(details.title, details.notes, router.back);
+    newTask(details.title, details.notes, function () {
+      viewCache = {};
+      router.back();
+    });
   });
+
+  var viewCache = {};
+  function view(name, options) {
+    if (typeof viewCache[name] === "undefined") {
+      var success = options.success;
+      options.success = function (data) {
+        viewCache[name] = data;
+        success(data);
+      };
+      $db.view(name, options);
+    } else {
+      options.success(viewCache[name]);
+    }
+  }
 
   function markDone(e) {
 
@@ -181,6 +204,7 @@ var Tasks = (function () {
         contentType:"application/json",
         datatype:"json",
         success: function() {
+          viewCache = {};
           if (cur_status === "complete" && current_tpl === "home_tpl" ||
               cur_status === "active" && current_tpl === "complete_tpl") {
             li.addClass("deleted");
@@ -198,7 +222,10 @@ var Tasks = (function () {
       url: url,
       type: "PUT",
       contentType:"application/json",
-      datatype:"json"
+      datatype:"json",
+      success: function() {
+        viewCache = {};
+      }
     });
   }
 
@@ -379,16 +406,16 @@ var Tasks = (function () {
       success: callbacks.success,
       error: callbacks.error
     });
-  };
+  }
 
   function createUrl(username, password, server, database) {
     if (username === "") {
       return "http://" + server + "/" + database;
     } else {
-      return "http://" + username + ":" + password + "@"
-        + server + "/" + database;
+      return "http://" + username + ":" + password + "@" +
+        server + "/" + database;
     }
-  };
+  }
 
   function viewTask(e) {
     if ($(this).attr("data-noclick")) {
@@ -430,17 +457,18 @@ var Tasks = (function () {
           li.removeClass("syncing");
         }, error: error})
       }, error: error});
-  };
+  }
 
   function deleteServer(e) {
     e.preventDefault();
     var li = $(e.target).parents("li");
     $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
       success: function() {
-        li.remove()
+        viewCache = {};
+        li.remove();
       }
     });
-  };
+  }
 
   function deleteTask(e) {
     e.preventDefault();
@@ -448,12 +476,13 @@ var Tasks = (function () {
     var li = $(e.target).parents("li");
     $db.removeDoc({_id: li.attr("data-id"), _rev: li.attr("data-rev")}, {
       success: function() {
+        viewCache = {};
         li.fadeOut("medium", function () {
           li.remove();
         });
       }
     });
-  };
+  }
 
   function createCheckBox(parent) {
     $("input[type=checkbox]", parent).each(function() {
