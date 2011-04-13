@@ -123,14 +123,12 @@ var Tasks = (function () {
   });
 
   router.get('!/sync/', function (id) {
-    setTimeout(function () {
     $db.view('couchtasks/servers', {
       success : function (data) {
         servers = getValues(data.rows);
         render('!/sync/', "sync_tpl", "#sync_content", {servers:servers});
       }
     });
-    }, 2000);
   });
 
   router.get('!/task/:id/', function (id) {
